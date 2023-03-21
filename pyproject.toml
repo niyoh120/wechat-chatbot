@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "wechat-chatbot"
+version = "0.1.0"
+description = "chatbot for wechat"
+authors = ["niyoh <zhrh120@gmail.com>"]
+readme = "README.md"
+packages = [{include = "wechat_chatbot"}]
+
+[tool.poetry.dependencies]
+python = "~3.9"
+edgegpt = "^0.0.60"
+pydantic = {extras = ["dotenv"], version = "^1.10.6"}
+itchat-uos = "1.5.0.dev0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
