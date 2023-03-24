@@ -2,19 +2,11 @@ import shelve
 import os
 import atexit
 
-g_dict = None
+filename = os.environ.get("CHAT_DATA_FILE", "__data")
+g_dict = shelve.open(filename, writeback=True)
+predefined_keys = ["bots"]
+for key in predefined_keys:
+    if key not in g_dict:
+        g_dict[key] = {}
 
-
-def init():
-    global g_dict
-    if g_dict is None:
-        filename = os.environ.get("CHAT_DATA_FILE", "__data")
-        g_dict = shelve.open(filename, writeback=True)
-
-
-def close():
-    if g_dict is not None:
-        g_dict.close()
-
-
-atexit.register(close)
+atexit.register(g_dict.close)
