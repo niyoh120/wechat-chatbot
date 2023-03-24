@@ -63,6 +63,7 @@ HEADERS_INIT_CONVER = {
         " Gecko) Chrome/110.0.0.0 Safari/537.36 Edg/110.0.1587.69"
     ),
     "x-edge-shopping-flag": "1",
+    "x-forwarded-for": "1.1.1.1",
 }
 
 
