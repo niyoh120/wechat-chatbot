@@ -46,10 +46,7 @@ class Bot:
 
     @property
     def can_continue(self) -> bool:
-        self.memory.return_messages = False
-        r = len(self.memory.buffer) < 1024
-        self.memory.return_messages = True
-        return r
+        return self.llm.get_num_tokens_from_messages(self.memory.chat_memory.messages) < 4096
 
     @property
     def engine(self) -> str:
