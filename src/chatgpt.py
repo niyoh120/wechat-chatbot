@@ -14,17 +14,19 @@ logger = structlog.get_logger(__name__)
 
 class Bot:
     def __init__(
-        self, bot_id: str, model_name="gpt-3.5-turbo", memory=None, **kwargs
+        self, bot_id: str, model_name="gpt-3.5-turbo", memory=None, count=0, **kwargs
     ) -> None:
         self.bot_id = bot_id
-        self._count = 0
-        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        self._count = count
+        self.memory = ConversationBufferMemory(
+            memory_key="chat_history", return_messages=True
+        )
         if memory is not None:
             self.memory.chat_memory.messages = memory
-        self.llm = ChatOpenAI(model_name=model_name, temperature=0)
+        self.llm = ChatOpenAI(model_name=model_name, temperature=0)  # type: ignore
         self.agent_chain = initialize_agent(
             [],
-            self.llm,
+            self.llm,  # type: ignore
             agent="chat-conversational-react-description",
             memory=self.memory,
             verbose=True,
@@ -44,8 +46,10 @@ class Bot:
 
     @property
     def can_continue(self) -> bool:
-        # return len(self.memory.buffer) < 1024
-        return True
+        self.memory.return_messages = False
+        r = len(self.memory.buffer) < 1024
+        self.memory.return_messages = True
+        return r
 
     @property
     def engine(self) -> str:
@@ -57,12 +61,15 @@ class Bot:
     def serialize(self) -> t.Dict:
         info = self.info()
         memory = messages_to_dict(self.memory.chat_memory.messages)
-        print(memory)
         return dict(info=info, memory=memory)
 
     @classmethod
     def deserialize(cls, data: t.Dict[str, t.Any]) -> "Bot":
         info = data["info"]
         memory = messages_from_dict(data["memory"])
-        print(data)
-        return cls(bot_id=info["bot_id"], model_name=info["engine"], memory=memory)
+        return cls(
+            bot_id=info["bot_id"],
+            model_name=info["engine"],
+            count=info["count"],
+            memory=memory,
+        )
