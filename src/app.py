@@ -72,46 +72,57 @@ def handle_msg(msg, content, reply_prefix=""):
 
     bot = get_or_create_bot(msg.user.userName)
 
-    if content.strip() == "/reset":
-        bot.reset()
-        reply(bot, "好了，我已经为新的对话重置了我的大脑。你现在想聊些什么?")
-        return
-
-    elif content.strip().startswith("/style"):
-        engine = content.strip().replace("/style ", "")
-        if engine not in CONVERSATION_STYLE_CHOICES:
-            reply(bot, f"[WARN]无效的对话风格[{engine}], 有效的选项为{CONVERSATION_STYLE_CHOICES}.")
+    if content.startswith("/"):
+        if content.strip() == "/reset":
+            bot.reset()
+            reply(bot, "好了，我已经为新的对话重置了我的大脑。你现在想聊些什么?")
             return
-        bot.style = engine
-        reply(bot, f"好了，我已经设置了对话风格为[{engine}].")
-        return
 
-    elif content.strip() == "/info":
-        config_str = "\n".join([f"{k}:{v}" for k, v in bot.info().items()])
-        reply(bot, config_str)
-        return
-
-    elif content.strip() == "/help":
-        reply(
-            bot,
-            "\n".join(
-                [
-                    "/info:获取机器人信息.",
-                    f"/style:设置对话风格, 有效的选项为{CONVERSATION_STYLE_CHOICES}.",
-                    f"/engine:设置对话引擎, 有效的选项为{CHAT_ENGINE_CHOICES}",
-                    "/reset:重置对话.",
-                ]
-            ),
-        )
-        return
-
-    elif content.strip().startswith("/engine"):
-        engine = content.strip().replace("/engine ", "")
-        if engine not in bot_type_map:
-            reply(bot, f"[WARN]无效的对话引擎[{engine}], 有效的选项为{list(bot_type_map.keys())}.")
+        elif content.strip().startswith("/style"):
+            if bot.engine != "bing":
+                reply(bot, f"{bot.engine}引擎不支持更改对话风格")
+                return
+            engine = content.strip().replace("/style ", "")
+            if engine not in CONVERSATION_STYLE_CHOICES:
+                reply(
+                    bot, f"[WARN]无效的对话风格[{engine}], 有效的选项为{CONVERSATION_STYLE_CHOICES}."
+                )
+                return
+            bot.style = engine
+            reply(bot, f"好了，我已经设置了对话风格为[{engine}].")
             return
-        bot = switch_bot(bot, engine)
-        reply(bot, f"好了，我已经设置了对话引擎为[{engine}]. 注意, 我已经忘记了之前的对话.")
+
+        elif content.strip() == "/info":
+            config_str = "\n".join([f"{k}:{v}" for k, v in bot.info().items()])
+            reply(bot, config_str)
+            return
+
+        elif content.strip() == "/help":
+            reply(
+                bot,
+                "\n".join(
+                    [
+                        "/info:获取机器人信息.",
+                        f"/style:设置对话风格, 只有bing引擎支持, 有效的选项为{CONVERSATION_STYLE_CHOICES}.",
+                        f"/engine:设置对话引擎, 有效的选项为{CHAT_ENGINE_CHOICES}",
+                        "/reset:重置对话.",
+                    ]
+                ),
+            )
+            return
+
+        elif content.strip().startswith("/engine"):
+            engine = content.strip().replace("/engine ", "")
+            if engine not in bot_type_map:
+                reply(
+                    bot, f"[WARN]无效的对话引擎[{engine}], 有效的选项为{list(bot_type_map.keys())}."
+                )
+                return
+            bot = switch_bot(bot, engine)
+            reply(bot, f"好了，我已经设置了对话引擎为[{engine}]. 注意, 我已经忘记了之前的对话.")
+            return
+
+        reply(bot, f"[WARN]无效的对话命令[{content}].输入/help查询有效的命令.")
         return
 
     answer = "[WARN]没有回答"
