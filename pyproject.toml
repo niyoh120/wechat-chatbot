@@ -13,6 +13,8 @@ pydantic = {extras = ["dotenv"], version = "^1.10.6"}
 itchat-uos = "1.5.0.dev0"
 structlog = "^22.3.0"
 rich = "^13.3.2"
+langchain = "^0.0.121"
+openai = "^0.27.2"
 
 
 [build-system]
