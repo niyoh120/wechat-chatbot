@@ -1,4 +1,3 @@
-import json
 import typing as t
 
 import structlog

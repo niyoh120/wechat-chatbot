@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import json
+import datetime
 
 import structlog
 import pydantic as pyd
@@ -61,6 +62,13 @@ def save_bot(bot):
 
 
 def handle_msg(msg, content, reply_prefix=""):
+    current_timestamp = int(datetime.datetime.now().timestamp())
+
+    # 5分钟前的信息不处理, 一般是重启后重复收到的消息
+    if current_timestamp - msg.createTime > 5 * 60:
+        logger.info(f"[WX]ignore too old message, {msg}")
+        return
+
     if "」\n- - - - - - - - - - - - - - -" in content:
         logger.info("[WX]reference query skipped")
         return
@@ -103,7 +111,10 @@ def handle_msg(msg, content, reply_prefix=""):
                 "\n".join(
                     [
                         "/info:获取机器人信息.",
-                        f"/style:设置对话风格, 只有bing引擎支持, 有效的选项为{CONVERSATION_STYLE_CHOICES}.",
+                        (
+                            "/style:设置对话风格, 只有bing引擎支持,"
+                            f" 有效的选项为{CONVERSATION_STYLE_CHOICES}."
+                        ),
                         f"/engine:设置对话引擎, 有效的选项为{CHAT_ENGINE_CHOICES}",
                         "/reset:重置对话.",
                     ]
